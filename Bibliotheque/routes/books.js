@@ -68,4 +68,29 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.delete('/:id', async (req, res) => {
+    try {
+        // Trouver le livre par l'ID fourni dans les paramètres de l'URL
+        const book = await Book.findById(req.params.id);
+
+        // Si le livre n'est pas trouvé
+        if (!book) {
+            return res.status(404).json({ msg: 'Livre non trouvé.' });
+        }
+
+        // Supprimer le livre
+        await Book.deleteOne({ _id: req.params.id }); // ou book.remove(); si vous avez l'instance du document
+
+        res.json({ msg: 'Livre supprimé avec succès !' });
+
+    } catch (err) {
+        console.error(err.message);
+        // Gérer les erreurs de type CastError si l'ID n'est pas un ObjectId valide
+        if (err.kind === 'ObjectId') {
+            return res.status(404).json({ msg: 'Livre non trouvé (ID invalide).' });
+        }
+        res.status(500).send('Erreur Serveur');
+    }
+});
+
 module.exports = router;
